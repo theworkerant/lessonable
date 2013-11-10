@@ -2,11 +2,12 @@
 *.sassc
 .sass-cache
 capybara-*.html
+Gemfile.lock
 .rspec
 .rvmrc
 /.bundle
 /vendor/bundle
-/log/*
+/log/*.log
 /tmp/*
 /db/*.sqlite3
 /public/system/*
