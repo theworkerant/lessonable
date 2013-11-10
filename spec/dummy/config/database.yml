@@ -11,7 +11,7 @@
 development:
   adapter: mysql2
   encoding: utf8
-  database: dummy_development
+  database: lessonable
   pool: 5
   username: root
   password:
@@ -23,7 +23,7 @@ development:
 test:
   adapter: mysql2
   encoding: utf8
-  database: dummy_test
+  database: lessonable_test
   pool: 5
   username: root
   password:
