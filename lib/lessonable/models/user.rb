@@ -14,8 +14,15 @@ module Lessonable
       "#{first_name} #{last_name}"
     end
 
+    def ability=(object)
+      unless object
+        Lessonable::Ability.new(self)
+      else
+        @ability = "Lessonable::#{object.class.to_s}Ability".constantize.new(self, object)  
+      end
+    end
     def ability
-      @ability ||= Ability.new(self)
+      @ability ||= Lessonable::Ability.new(self)
     end
     def is?(base_role, object)
       role ||= "student"
@@ -27,7 +34,8 @@ module Lessonable
       end      
     end
     def role_for(object)
-      role = self.roles.find_by(rolable_id: object.id, rolable_type: object.class.to_s).role
+      result = self.roles.find_by(rolable_id: object.id, rolable_type: object.class.to_s)
+      result ? result.role : "default"
     end 
 
   end

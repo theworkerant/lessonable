@@ -1,5 +1,5 @@
 module Lessonable
-  module Ability
+  class Ability
     extend ActiveSupport::Concern
     
     require "cancan"
@@ -24,6 +24,7 @@ module Lessonable
     end
     
     def student
+      
     end
   end
 end

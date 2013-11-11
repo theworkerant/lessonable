@@ -1,17 +1,21 @@
 require "spec_helper"
 describe Lessonable::BusinessAbility do
-  subject { BusinessAbility.new(create(:user)) }
+  subject { Lessonable::BusinessAbility.new(create(:user), create(:business)) }
 
   it "default can't do anything" do
-    pending
-    # expect(subject.can?(:do_anything, Class)).to eq false
+    expect(subject.can?(:manage, create(:business))).to eq false
   end
   
   describe "Owner" do
-    subject { BusinessAbility.new(create(:user, {role: "owner"})) }
+    let(:business) { create :business }
+    let(:user) { create :user }
+    before(:each) do
+      user.roles.create({role: "owner", rolable_id: business.id, rolable_type: business.class.to_s})
+    end
+    subject { Lessonable::BusinessAbility.new(user, business) }
+    
     it "can do anything" do
-      pending
-      # expect(subject.can?(:do_anything, Class)).to eq true
+      expect(subject.can?(:manage, business)).to eq true
     end
   end
   
