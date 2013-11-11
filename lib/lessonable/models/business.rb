@@ -1,7 +1,5 @@
 module Lessonable
   module Business
-    def foo
-      true
-    end
+    extend ActiveSupport::Concern
   end
 end

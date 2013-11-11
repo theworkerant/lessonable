@@ -11,11 +11,12 @@ Gem::Specification.new do |s|
   s.email       = ["graham@theworkerant.com"]
   s.homepage    = "theworkerant.com"
   s.summary     = "Business logic for businesses that provide lessons"
-  s.description = "TODO"
+  s.description = "Business logic for businesses that provide lessons"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
   s.add_dependency "rails", "~> 4.0.1"
+  s.add_dependency "cancan"
 
   s.add_development_dependency "mysql2"
   s.add_development_dependency "rspec-rails"
