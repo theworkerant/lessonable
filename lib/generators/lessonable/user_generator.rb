@@ -28,10 +28,6 @@ module Lessonable
         migration_template "add_role_to_users.rb", "db/migrate/add_role_to_users.rb"
       end
       
-      def add_cancan
-        template "user_ability.rb", "app/models/ability.rb"
-      end
-      
       def create_inheritable_roles
         template "role.rb", "app/models/role.rb"
         migration_template "create_roles.rb", "db/migrate/create_roles.rb"
