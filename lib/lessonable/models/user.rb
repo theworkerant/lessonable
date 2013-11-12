@@ -24,13 +24,13 @@ module Lessonable
     def ability
       @ability ||= Lessonable::Ability.new(self)
     end
-    def is?(base_role, object)
-      role ||= "student"
+    def is?(base_role, object=false)
+      self.role ||= "student"
       if object
         ability_class = Lessonable.const_get("#{object.class.to_s}Ability")
-        return ability_class::ROLES.index(base_role.to_s) <= ability_class::ROLES.index(role_for(object))
+        return ability_class::ROLES.index(base_role) >= ability_class::ROLES.index(role_for(object))
       else
-        return Lessonable::Ability::ROLES.index(base_role.to_s) <= Lessonable::Ability::ROLES.index(role)
+        return Lessonable::Ability::ROLES.index(base_role) >= Lessonable::Ability::ROLES.index(role)
       end      
     end
     def role_for(object)
