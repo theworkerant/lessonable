@@ -15,7 +15,13 @@ describe Lessonable::Subscriptions do
   end
   subject { SubscribableClass.new() }
   before(:each) do
+    stripe_customer_with_card(subject)
     allow(subject).to receive(:save).and_return(true)
+  end
+  
+  it "responds to #subscription_id and #role" do
+    subject.respond_to?(:subscription_id)
+    subject.respond_to?(:role)
   end
 
   describe "#subscribable?(role)" do
@@ -25,17 +31,7 @@ describe Lessonable::Subscriptions do
     end
   end
   
-  context "no subscription" do
-    it "responds to #subscription_id" do
-      subject.respond_to?(:subscription_id)
-    end
-  end
-  
   context "signing up for a subscription" do
-    before(:each) do
-      setup_customer_with_card
-    end
-
     it "changes role instantly for free plan" do
       subject.subscribe_to(nil, "default")
       expect(subject.role).to eq "default"
@@ -47,7 +43,7 @@ describe Lessonable::Subscriptions do
     end
     
     it "sets the subscription ID upon successful subscription event" do
-      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(subscription_status:"active"))
+      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(subscription:true))
       event = stripe_subscription_created(subject.customer_id, "student awesomeness")
       subject.class.process_subscription_created(event)
     end
@@ -65,22 +61,21 @@ describe Lessonable::Subscriptions do
     end
     
     it "raises error when no such plan available" do
-      expect(lambda{subject.subscribe_to("some bogus plan")}).to raise_error(Stripe::InvalidRequestError, "No such plan: some bogus plan")
+      expect(lambda{subject.subscribe_to("some bogus plan")}).to raise_error(Stripe::InvalidRequestError, "No such plan: some bogus plan") if hit_stripe?
     end
   end
   
   context "signing up for a subscription without valid payment method" do
     before(:each) do
-      subject.customer_id = stripe_customer_without_card
+      stripe_customer_without_card(subject)
     end
     it "raises error when no payment method available" do
-      expect(lambda{subject.subscribe_to("student awesomeness")}).to raise_error(Stripe::InvalidRequestError, "You must supply a valid card")
+      expect(lambda{subject.subscribe_to("student awesomeness")}).to raise_error(Stripe::InvalidRequestError, "You must supply a valid card") if hit_stripe?
     end
   end
   
   context "downgrading/upgrading subscription" do
     before(:each) do
-      setup_customer_with_card
       subject.role = "business"
     end
     
@@ -98,22 +93,21 @@ describe Lessonable::Subscriptions do
   
   context "automatic cancellation" do
     before(:each) do
-      setup_customer_with_card
+      stripe_customer_with_card_and_subscription(subject)
       subject.role            = "business"
       subject.subscription_id = "abc123"
     end
     
     it "defaults role and removes subscription_id" do
-      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(subscription_status: "canceled"))
+      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(subscription:true, subscription_status: "canceled"))
       subject.class.process_subscription_deleted stripe_subscription_deleted(subject.customer_id)
       expect(subject.role).to eq "default"
       expect(subject.subscription_id).to eq nil
     end
   end
   
-  context "manual cancellation" do
+  context "manual cancelation" do
     before(:each) do
-      setup_customer_with_card
       subject.subscribe_to("The biz plan")
       subject.subscription_id = "abc123"
     end
@@ -138,7 +132,7 @@ describe Lessonable::Subscriptions do
 
 end
 
-def setup_customer_with_card
-  subject.customer_id  = stripe_customer_with_card
-  allow(subject.class).to receive(:find_by_customer_id).with(subject.customer_id).and_return(subject)
-end
+# def setup_customer_with_card
+#   subject.customer_id = stripe_customer_with_card
+#   
+# end

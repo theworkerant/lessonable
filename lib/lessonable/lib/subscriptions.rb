@@ -40,7 +40,7 @@ module Lessonable
         end
       end
       def process_subscription_deleted(event)
-        stripe_customer = Stripe::Customer.retrieve(event.data.object.customer)        
+        stripe_customer = Stripe::Customer.retrieve(event.data.object.customer)
         if stripe_customer.subscription.status == "canceled"
           object = self.find_by_customer_id(event.data.object.customer)
           object.subscription_id  = nil
