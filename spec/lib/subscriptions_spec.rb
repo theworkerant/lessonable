@@ -61,8 +61,8 @@ describe Lessonable::Subscriptions do
     end
     
     it "raises error when no such plan available" do
-      expect(lambda{subject.subscribe_to("some bogus plan")}).to raise_error(Stripe::InvalidRequestError, "No such plan: some bogus plan") if hit_stripe?
-    end
+      expect(lambda{subject.subscribe_to("some bogus plan")}).to raise_error(Stripe::InvalidRequestError, "No such plan: some bogus plan")
+    end if hit_stripe?
   end
   
   context "signing up for a subscription without valid payment method" do
@@ -70,8 +70,8 @@ describe Lessonable::Subscriptions do
       stripe_customer_without_card(subject)
     end
     it "raises error when no payment method available" do
-      expect(lambda{subject.subscribe_to("student awesomeness")}).to raise_error(Stripe::InvalidRequestError, "You must supply a valid card") if hit_stripe?
-    end
+      expect(lambda{subject.subscribe_to("student awesomeness")}).to raise_error(Stripe::InvalidRequestError, "You must supply a valid card")
+    end if hit_stripe?
   end
   
   context "downgrading/upgrading subscription" do

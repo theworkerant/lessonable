@@ -28,8 +28,7 @@ module Lessonable
       end
       self.save
     end
-    
-    
+
     module ClassMethods
       def process_subscription_created(event)
         stripe_customer = Stripe::Customer.retrieve(event.data.object.customer)
