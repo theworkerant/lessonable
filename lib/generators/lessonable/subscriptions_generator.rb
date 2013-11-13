@@ -3,7 +3,7 @@ require 'rails/generators/migration'
 
 module Lessonable
   module Generators
-    class BusinessGenerator < Rails::Generators::Base
+    class SubscriptionsGenerator < Rails::Generators::Base
       include Rails::Generators::Migration
         
       argument :actions, :type => :array, :default => [], :banner => "action action"
@@ -11,12 +11,12 @@ module Lessonable
       source_root File.expand_path(File.join(File.dirname(__FILE__), 'templates'))
     
       def self.next_migration_number(path)
-          @migration_number = Time.now.utc.strftime("%Y%m%d%H%M%S%L").to_i.to_s
+        @migration_number = Time.now.utc.strftime("%Y%m%d%H%M%S%L").to_i.to_s
       end
       
       def create_model_file
-        template "business.rb", "app/models/business.rb"
-        migration_template "create_business.rb", "db/migrate/create_business.rb"
+        template "subscriptions_initializer.rb", "config/initializers/subscriptions.rb"
+        migration_template "add_subscriptions_to_users.rb", "db/migrate/add_subscriptions_to_users.rb"
       end
       
     end  

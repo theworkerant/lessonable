@@ -1,6 +1,6 @@
 require "spec_helper"
 describe Lessonable::User do
-  context "default" do
+  context "a new user" do
     subject { create :user }
   
     it "has a first, last and full name" do
@@ -8,9 +8,9 @@ describe Lessonable::User do
       expect(subject.respond_to?(:last_name)).to eq true
       expect(subject.respond_to?(:full_name)).to eq true
     end
-    it "has a default role of student" do
+    it "has a default role of 'default'" do
       expect(subject.respond_to?(:role)).to eq true
-      expect(subject.role).to eq "student"
+      expect(subject.role).to eq "default"
     end
     it "responds to abilities methods #can? and #cannot?" do
       expect(subject.respond_to?(:can?)).to eq true
@@ -20,11 +20,40 @@ describe Lessonable::User do
     describe "#is?" do
       it "checks whether user has that role" do
         expect(subject.is?("instructor")).to eq false
-        expect(subject.is?("student")).to eq true
+        expect(subject.is?("default")).to eq true
       end
     end
   end
+  
+  describe "#business" do
+    subject { create :user }
+    before(:each) do
+      other_business = create :business
+      subject.roles.create({role: "owner", rolable_id: other_business.id, rolable_type: other_business.class.to_s})
+      
+      business = create :business
+      subject.update_attribute :business_id, business.id
+    end
     
+    it "returns the primary business, even if other associations exist" do
+      expect(Business.count).to eq 2
+      expect(subject.business.id).to eq 2
+    end
+  end
+  
+  describe "#businesses" do
+    subject { create :user }
+    
+    before(:each) do
+      3.times { create :business } 
+      subject.roles.create({role: "owner", rolable_id: 2, rolable_type: "Business"})
+      subject.roles.create({role: "office", rolable_id: 2, rolable_type: "Business"})
+    end
+    it "returns all business which that user is associated" do
+      expect(Business.count).to eq 3
+      expect(subject.businesses.count).to eq 2
+    end
+  end
   
   describe "Role Inheritance" do
     subject { create(:user, {role: "instructor"}) }

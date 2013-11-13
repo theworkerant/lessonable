@@ -5,10 +5,11 @@ module Lessonable
     require "cancan"
     include CanCan::Ability
     
-    ROLES = %w( admin business instructor student )
+    ROLES = %w( admin business instructor student default )
+    SUBSCRIBABLE_ROLES = ROLES - ["admin"]
     
     def initialize(user)
-      user.role ||= "student"
+      user.role ||= "default"
       roles = ROLES[ROLES.index(user.role)..-1]
       roles.each { |role| send(role) }
     end
@@ -18,13 +19,15 @@ module Lessonable
     end
       
     def business
-      can :manage, Business, business_id: [1,2,3]
+      can :create, Business
     end
     def instructor
     end
     
     def student
       
+    end
+    def default
     end
   end
 end

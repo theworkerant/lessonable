@@ -8,6 +8,11 @@ module Lessonable
       delegate :can?, :cannot?, :to => :ability
       
       has_many :roles
+      has_many :businesses, through: :roles, :source => :rolable, :source_type => "Business"
+      
+      belongs_to :business
+      
+      before_create :set_default_role
     end
     
     def full_name
@@ -25,7 +30,7 @@ module Lessonable
       @ability ||= Lessonable::Ability.new(self)
     end
     def is?(base_role, object=false)
-      self.role ||= "student"
+      self.role ||= "default"
       if object
         ability_class = Lessonable.const_get("#{object.class.to_s}Ability")
         return ability_class::ROLES.index(base_role) >= ability_class::ROLES.index(role_for(object))
@@ -37,6 +42,11 @@ module Lessonable
       result = self.roles.find_by(rolable_id: object.id, rolable_type: object.class.to_s)
       result ? result.role : "default"
     end 
+    
+    private
+    def set_default_role
+      self.role = Lessonable::Ability::ROLES.last unless self.role
+    end
 
   end
 end
