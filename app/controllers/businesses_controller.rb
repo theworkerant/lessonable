@@ -1,5 +1,9 @@
 class BusinessesController < LessonableController
-  before_action :set_business, only: [:show]
+  
+  load_resource :class => Business
+  before_filter :scope_abilities, only: [:update] 
+  authorize_resource
+  permit_params :name, :description
   
   # def index
   #   respond_with Business.all
@@ -8,7 +12,7 @@ class BusinessesController < LessonableController
     respond_with @business, status: 200
   end
   def create
-    @business = Business.new(business_params)
+    @business = Business.new(params[:business])
     if @business.save
       render json: {id: @business.id}, status: 201
     else
@@ -16,21 +20,14 @@ class BusinessesController < LessonableController
     end
   end
   def update
-    @business = Business.find(params[:id])
-    if @business.update_attributes(business_params)
+    if @business.update_attributes(params[:business])
       render json: {id: @business.id}, status: 200
     else
       respond_with @business
     end
   end
   
-  private
-  def set_business
-    @business = Business.find(params[:id])
+  def scope_abilities
+    current_user.ability = @business
   end
-  
-  def business_params
-    params[:business].permit(:name, :description)
-  end
-  
 end

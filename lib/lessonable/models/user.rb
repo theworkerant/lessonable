@@ -5,7 +5,7 @@ module Lessonable
     included do
       validates_presence_of :first_name, :on => :create, :message => "can't be blank"
       validates_presence_of :last_name, :on => :create, :message => "can't be blank"
-      delegate :can?, :cannot?, :to => :ability
+      delegate :can?, :cannot?, :to => :current_ability
       
       has_many :roles
       has_many :businesses, through: :roles, :source => :rolable, :source_type => "Business"
@@ -21,13 +21,13 @@ module Lessonable
 
     def ability=(object)
       unless object
-        Lessonable::Ability.new(self)
+        @current_ability = Lessonable::Ability.new(self)
       else
-        @ability = "Lessonable::#{object.class.to_s}Ability".constantize.new(self, object)  
+        @current_ability = "Lessonable::#{object.class.to_s}Ability".constantize.new(self, object)  
       end
     end
-    def ability
-      @ability ||= Lessonable::Ability.new(self)
+    def current_ability
+      @current_ability ||= Lessonable::Ability.new(self)
     end
     def is?(base_role, object=false)
       self.role ||= "default"

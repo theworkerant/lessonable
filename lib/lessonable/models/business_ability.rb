@@ -19,7 +19,7 @@ module Lessonable
     ROLES.each {|role| define_method("#{role}_abilities") {} }
     
     def owner
-      can :manage, Business, {id: @business.id}
+      can :manage, Business
     end
     def instructor
     end

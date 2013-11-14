@@ -23,13 +23,14 @@ module Lessonable
       can :manage, :all
     end
     def business
-      can :create, Business
+      can :manage, Business
     end
     def instructor
     end
     def student
     end
     def default
+      can :read, Business
     end
   end
 end
