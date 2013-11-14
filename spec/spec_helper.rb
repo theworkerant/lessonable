@@ -8,7 +8,9 @@ require 'rspec/rails'
 require 'rspec/autorun'
 require 'factory_girl'
 require 'database_cleaner'
+require 'json_spec'
 
+require 'capybara-webkit'
 require 'capybara/rspec'
 Capybara.javascript_driver  = :webkit
 Capybara.default_selector   = :css
@@ -25,6 +27,7 @@ ActiveRecord::Migration.check_pending! if defined?(ActiveRecord::Migration)
 RSpec.configure do |config|
   config.include Capybara::DSL
   config.include FactoryGirl::Syntax::Methods
+  config.include JsonSpec::Helpers
   # ## Mock Framework
   #
   # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:
