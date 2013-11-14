@@ -50,7 +50,6 @@ feature "update a business" do
   end
   scenario "user without business role" do
     patch business_path(business, {business: {name: "Some Business Edited!", description: "Some description"}})
-    puts "!!!!! #{response.body}"
     expect_not_authorized
   end
   
