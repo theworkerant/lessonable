@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/[theworkerant]/[lessonable].png)](https://travis-ci.org/[theworkerant]/[lessonable])
+
 Lessonable
 ==========
 
