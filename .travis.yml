@@ -1,5 +1,9 @@
 language: ruby
+services: mysql
 rvm:
   - 2.0.0
   
-script: bundle exec rspec spec
+before_script:
+  - mysql -e 'create database lessonable_test;'
+  
+script: HIT_STRIPE=true bundle exec rspec spec
