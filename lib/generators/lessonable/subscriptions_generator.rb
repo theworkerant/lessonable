@@ -15,8 +15,8 @@ module Lessonable
       end
       
       def create_model_file
-        template "subscriptions_initializer.rb", "config/initializers/subscriptions.rb"
-        migration_template "add_subscriptions_to_users.rb", "db/migrate/add_subscriptions_to_users.rb"
+        template "subscribable_initializer.rb", "config/initializers/subscribable.rb"
+        migration_template "add_subscriptions.rb", "db/migrate/create_subscriptions.rb"
       end
       
     end  

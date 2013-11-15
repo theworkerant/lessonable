@@ -1,5 +1,5 @@
 module Lessonable
-  module Subscriptions
+  module Subscribable
     Stripe.api_key = "XXX"
     
     # Fill in roles with applicable Stripe plans. Multiple plans may apply.
