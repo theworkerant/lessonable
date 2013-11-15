@@ -1,6 +1,6 @@
 class BusinessesController < LessonableController
   
-  load_resource :class => Business
+  load_resource
   before_filter :scope_abilities, only: [:update] 
   authorize_resource
   permit_params :name, :description

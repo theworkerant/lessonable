@@ -1,16 +1,16 @@
 require "spec_helper"
-describe Lessonable::Subscriptions do
+describe Lessonable::Subscribable do
   
   it "should have an array of subscriptions for each role" do
     Lessonable::Ability::SUBSCRIBABLE_ROLES.each do |role|
-      expect(Lessonable::Subscriptions::ROLE_PLANS[role.to_sym]).to be_an Array
+      expect(Lessonable::Subscribable::ROLE_PLANS[role.to_sym]).to be_an Array
     end
   end
     
   # Setup a dummy class, but usually represented by a user
   class SubscribableClass
     def self.find_by_customer_id; end 
-    include Lessonable::Subscriptions 
+    include Lessonable::Subscribable
     attr_accessor :customer_id, :subscription_id, :role
   end
   subject { SubscribableClass.new() }

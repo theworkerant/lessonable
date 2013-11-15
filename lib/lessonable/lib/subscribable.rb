@@ -1,5 +1,5 @@
 module Lessonable
-  module Subscriptions
+  module Subscribable
     require "stripe"
     
     def subscribable?(role)

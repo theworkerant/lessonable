@@ -5,8 +5,8 @@ module Lessonable
   
   require "lessonable/models/business"
   require "lessonable/models/user"
-  require "lessonable/models/ability"
-  require "lessonable/models/business_ability"
   
-  require "lessonable/lib/subscriptions"
+  require "lessonable/lib/ability"
+  require "lessonable/lib/business_ability"
+  require "lessonable/lib/subscribable"
 end
