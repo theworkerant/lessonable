@@ -14,6 +14,7 @@ class BusinessesController < LessonableController
   def create
     @business = Business.new(params[:business])
     if @business.save
+      current_user.roles.create({role: "owner", rolable_id: @business.id, rolable_type: "Business"})
       render json: {id: @business.id}, status: 201
     else
       respond_with @business

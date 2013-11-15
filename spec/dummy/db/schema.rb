@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131113005006589) do
+ActiveRecord::Schema.define(version: 20131115152446680) do
 
   create_table "businesses", force: true do |t|
     t.string   "name"
@@ -25,6 +25,16 @@ ActiveRecord::Schema.define(version: 20131113005006589) do
     t.string   "role"
     t.integer  "rolable_id"
     t.string   "rolable_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "subscriptions", force: true do |t|
+    t.string   "plan_id"
+    t.text     "status"
+    t.datetime "current_period_start"
+    t.datetime "current_period_end"
+    t.datetime "canceled_at"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

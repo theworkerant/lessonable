@@ -1,8 +1,13 @@
 require "spec_helper"
+def setup_business_controller_with_user(user=nil)
+  user ||= create :user
+  allow_any_instance_of(BusinessesController).to receive(:current_user).and_return(user)
+  return user
+end
 
 feature "find a business" do
   before(:each) do
-    setup_user
+    setup_business_controller_with_user
   end
   scenario "see it's glory" do
     business = create :business
@@ -20,21 +25,21 @@ end
 
 feature "business creation" do
   before(:each) do
-    setup_user
+    setup_business_controller_with_user
   end
   scenario "unauthorized user" do
     post businesses_path({business: {name: "Some Business", description: "Some description"}})
     expect_not_authorized
   end
   scenario "authorized user creates business" do
-    user = setup_user create(:user, {role: "business"})
-    post businesses_path({business: {name: "Some Business", description: "Some description"}})
+    user = setup_business_controller_with_user create(:user, {role: "business"})
+    post businesses_path({business: {name: "Some Crazy Business", description: "Some description"}})
     expect(parse_json(response.body)["id"]).to eq 1
-    # expect(user.businesses.first.name).to eq "Some Business"
+    expect(user.businesses.first.name).to eq "Some Crazy Business"
     returns_code 201
   end
   scenario "missing something" do
-    setup_user create(:user, {role: "business"})
+    setup_business_controller_with_user create(:user, {role: "business"})
     post businesses_path({business: {description: "Some description"}})
     expect(parse_json(response.body)["errors"].keys).to include("name")
     returns_code 422
@@ -46,7 +51,7 @@ feature "update a business" do
   let(:user) { create :user, role: "business" } # business role here is for sanity check
   
   before(:each) do
-    setup_user user
+    setup_business_controller_with_user user
   end
   scenario "user without business role" do
     patch business_path(business, {business: {name: "Some Business Edited!", description: "Some description"}})
@@ -74,10 +79,4 @@ feature "update a business" do
     end
     
   end
-end
-
-def setup_user(user=nil)
-  user ||= create :user
-  allow_any_instance_of(BusinessesController).to receive(:current_user).and_return(user)
-  return user
 end

@@ -131,8 +131,3 @@ describe Lessonable::Subscribable do
   # end
 
 end
-
-# def setup_customer_with_card
-#   subject.customer_id = stripe_customer_with_card
-#   
-# end
