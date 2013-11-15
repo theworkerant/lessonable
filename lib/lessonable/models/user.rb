@@ -1,6 +1,7 @@
 module Lessonable
   module User
     extend ActiveSupport::Concern
+    include Lessonable::Subscribable
     
     included do
       validates_presence_of :first_name, :on => :create, :message => "can't be blank"
@@ -11,8 +12,10 @@ module Lessonable
       has_many :businesses, through: :roles, :source => :rolable, :source_type => "Business"
       
       belongs_to :business
+      belongs_to :subscription
       
       before_create :set_default_role
+      after_create :create_subscription
     end
     
     def full_name
@@ -23,7 +26,7 @@ module Lessonable
       unless object
         @current_ability = Lessonable::Ability.new(self)
       else
-        @current_ability = "Lessonable::#{object.class.to_s}Ability".constantize.new(self, object)  
+        @current_ability = "Lessonable::#{object.class.to_s}Ability".constantize.new(self, object)
       end
     end
     def current_ability
@@ -46,6 +49,10 @@ module Lessonable
     private
     def set_default_role
       self.role = Lessonable::Ability::ROLES.last unless self.role
+    end
+    def create_subscription
+      self.subscription = self.build_subscription
+      self.save
     end
 
   end

@@ -7,16 +7,9 @@ describe Lessonable::Subscribable do
     end
   end
     
-  # Setup a dummy class, but usually represented by a user
-  class SubscribableClass
-    def self.find_by_customer_id; end 
-    include Lessonable::Subscribable
-    attr_accessor :customer_id, :subscription_id, :role
-  end
-  subject { SubscribableClass.new() }
+  subject { create :user }
   before(:each) do
     stripe_customer_with_card(subject)
-    allow(subject).to receive(:save).and_return(true)
   end
   
   it "responds to #subscription_id and #role" do
@@ -24,34 +17,50 @@ describe Lessonable::Subscribable do
     subject.respond_to?(:role)
   end
 
-  describe "#subscribable?(role)" do
-    it "responds true if there are subscriptions for a given role" do
-      expect(subject.subscribable?("business")).to eq true
-      expect(subject.subscribable?("default")).to eq false
+  # describe "#subscribable?(plan)" do
+  #   it "responds true if there is a role for a given plan" do
+  #     expect(subject.subscribable?("The biz plan")).to eq true
+  #     expect(subject.subscribable?("Some unknown plan")).to eq false
+  #   end
+  # end
+  
+  describe "#update_subscription(stripe_subscription)" do
+    it "updates subscription attributes from stripe object" do
+      pending
+    end
+  end
+  describe "#plan_for_role?(plan,role)" do
+    it "returns whether a plan exists for a given role" do
+      expect(subject.plan_for_role?("No such plan", "business")).to eq false
+      expect(subject.plan_for_role?("The biz plan", "business")).to eq true
+    end
+  end
+
+  describe "#subscribe_to(plan,role)" do
+    it "changes role instantly when no plan specified but role is" do
+      subject.subscribe_to(nil, "student")
+      expect(subject.reload().role).to eq "student"
     end
   end
   
-  context "signing up for a subscription" do
-    it "changes role instantly for free plan" do
-      subject.subscribe_to(nil, "default")
-      expect(subject.role).to eq "default"
-    end
-    
+  context "no existing subscription" do
+
     it "changes role on successful subscription" do
+      allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object(plan: "The biz plan")) unless hit_stripe?
       subject.subscribe_to("The biz plan")
-      expect(subject.role).to eq "business"
+      expect(subject.reload().role).to eq "business"
     end
     
-    it "sets the subscription ID upon successful subscription event" do
-      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(subscription:true))
-      event = stripe_subscription_created(subject.customer_id, "student awesomeness")
-      subject.class.process_subscription_created(event)
+    it "sets the subscription upon successful subscription event" do
+      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(customer: subject.customer_id,plan:"student awesomeness"))
+      subject.class.process_subscription_created stripe_subscription_created(subject.customer_id)
+      expect(subject.subscription.reload().plan_id).to eq "student awesomeness"
     end
 
-    context "subscribing to plan without role" do
+    context "subscribing to plan without role match" do
       it "allows subscription, default role given if no other role" do
-        subject.subscribe_to("Plan without role")
-        expect(subject.role).to eq "default"
+        subject.subscribe_to("Plan without role", "student")
+        expect(subject.role).to eq "student"
       end
       it "role stays the same if already set" do
         subject.role = "admin"
@@ -63,64 +72,67 @@ describe Lessonable::Subscribable do
     it "raises error when no such plan available" do
       expect(lambda{subject.subscribe_to("some bogus plan")}).to raise_error(Stripe::InvalidRequestError, "No such plan: some bogus plan")
     end if hit_stripe?
-  end
-  
-  context "signing up for a subscription without valid payment method" do
-    before(:each) do
-      stripe_customer_without_card(subject)
-    end
+
     it "raises error when no payment method available" do
+      stripe_customer_without_card(subject)
       expect(lambda{subject.subscribe_to("student awesomeness")}).to raise_error(Stripe::InvalidRequestError, "You must supply a valid card")
     end if hit_stripe?
+    
   end
   
-  context "downgrading/upgrading subscription" do
+  context "existing subscription" do
     before(:each) do
       subject.role = "business"
     end
     
     it "downgrades role based on new subscription" do
+      allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object(plan: "student with trial")) unless hit_stripe?
       subject.subscribe_to("student with trial")
-      expect(subject.role).to eq "student"
+      expect(subject.reload().role).to eq "student"
     end
     
     it "upgrades role based on new subscription" do
       subject.role = "default"
+      allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object(plan: "The biz plan")) unless hit_stripe?
       subject.subscribe_to("The biz plan")
-      expect(subject.role).to eq "business"
-    end
-  end
-  
-  context "automatic cancellation" do
-    before(:each) do
-      stripe_customer_with_card_and_subscription(subject)
-      subject.role            = "business"
-      subject.subscription_id = "abc123"
+      expect(subject.reload().role).to eq "business"
     end
     
-    it "defaults role and removes subscription_id" do
-      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(subscription:true, subscription_status: "canceled"))
-      subject.class.process_subscription_deleted stripe_subscription_deleted(subject.customer_id)
-      expect(subject.role).to eq "default"
-      expect(subject.subscription_id).to eq nil
-    end
-  end
-  
-  context "manual cancelation" do
-    before(:each) do
-      subject.subscribe_to("The biz plan")
-      subject.subscription_id = "abc123"
+    context "while trialing" do
     end
     
-    it "cancels at period end by default, so changes nothing immediately" do
-      subject.unsubscribe(at_period_end: true)
-      expect(subject.role).to eq "business"
-      expect(subject.subscription_id).to eq "abc123"
+    context "canceled automatically" do
+      before(:each) do
+        stripe_customer_with_card_and_subscription(subject)
+        subject.role              = "business"
+        subject.subscription      = create :subscription
+        subject.subscription_id   = subject.subscription.id # ActiveRecord mocked out, manual hookup
+      end
+    
+      it "defaults role and marks subscription 'canceled'" do
+        allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object(customer: subject.customer_id, subscription_status: "canceled"))
+        subject.class.process_subscription_deleted stripe_subscription_deleted(subject.customer_id)
+        expect(subject.reload().role).to eq "default"
+        expect(subject.subscription.status).to eq "canceled"
+      end
     end
-    it "defaults role and removes subscription_id" do
-      subject.unsubscribe(at_period_end: false)
-      expect(subject.role).to eq "default"
-      expect(subject.subscription_id).to eq nil
+    
+    context "canceled manually" do
+      before(:each) do
+        allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object(plan: "The biz plan")) unless hit_stripe?
+        subject.subscribe_to("The biz plan")
+      end
+    
+      it "cancels at period end by default, so changes nothing immediately" do
+        subject.unsubscribe(at_period_end: true)
+        expect(subject.reload().role).to eq "business"
+        expect(subject.subscription.plan_id).to eq "The biz plan"
+      end
+      it "defaults role and removes subscription_id" do
+        subject.unsubscribe(at_period_end: false)
+        expect(subject.role).to eq "default"
+        expect(subject.subscription_id).to eq nil
+      end
     end
   end
   

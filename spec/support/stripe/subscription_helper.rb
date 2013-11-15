@@ -1,35 +1,31 @@
 def stripe_customer_with_card(subject)
   if hit_stripe?
-    subject.customer_id = Stripe::Customer.create(
+    subject.update_attribute :customer_id, Stripe::Customer.create(
       :description => "Customer for card@subscriptions.com",
       :card => {number: "4242424242424242", exp_month: "12", exp_year: "2020"}
     ).id
-    allow(subject.class).to receive(:find_by_customer_id).with(subject.customer_id).and_return(subject)
   else
-    default_stripe_stubs(subject, stripe_customer_object(card:true))
+    stripe_subscription_stubs(subject, stripe_customer_object(card:true))
   end
 end
 def stripe_customer_without_card(subject)
   if hit_stripe?
-    subject.customer_id = Stripe::Customer.create(:description => "Customer for card@subscriptions.com").id
-    allow(subject.class).to receive(:find_by_customer_id).with(subject.customer_id).and_return(subject)
+    subject.update_attribute :customer_id, Stripe::Customer.create(:description => "Customer for card@subscriptions.com").id
   else
-    default_stripe_stubs(subject, stripe_customer_object)
+    stripe_subscription_stubs(subject, stripe_customer_object)
   end
 end
 def stripe_customer_with_card_and_subscription(subject)
   if hit_stripe?
-    subject.customer_id = Stripe::Customer.create( :description => "Customer for card@subscriptions.com", :card => {number: "4242424242424242", exp_month: "12", exp_year: "2020"} ).id
-    allow(subject.class).to receive(:find_by_customer_id).with(subject.customer_id).and_return(subject)
-    # create subscription here
+    subject.update_attribute :customer_id, Stripe::Customer.create( :description => "Customer for card@subscriptions.com", :card => {number: "4242424242424242", exp_month: "12", exp_year: "2020"} ).id
+    # create stripe subscription here
   else
-    default_stripe_stubs(subject, stripe_customer_object(subscription:true,card:true))
+    stripe_subscription_stubs(subject, stripe_customer_object(subscription:true,card:true))
   end
 end
 
-def default_stripe_stubs(subject, customer)
-  subject.customer_id = "cus_00000000000000"
-  allow(subject.class).to receive(:find_by_customer_id).with(subject.customer_id).and_return(subject)
+def stripe_subscription_stubs(subject, customer)
+  subject.update_attribute :customer_id,"cus_00000000000000" unless subject.customer_id
   allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(customer)
   allow_any_instance_of(Stripe::Customer).to receive(:cancel_subscription).and_return(stripe_subscription_object)
   allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object)
@@ -41,7 +37,7 @@ end
 # For *raw*
 # replace nils with nils
 # replace (.*): with $1:
-def stripe_customer_object(customer="cus_00000000000000", plan="some plan_00000000000000", subscription:false, subscription_status:"active", card:false)
+def stripe_customer_object(customer:"cus_00000000000000", plan:"some plan_00000000000000", subscription:false, subscription_status:"active", card:false)
   subscription_data, cards_data, default_card_data = nil, nil, nil
   subscription_data = {
     id: "su_2vbKm2UYpLdDj2",
@@ -69,7 +65,7 @@ def stripe_customer_object(customer="cus_00000000000000", plan="some plan_000000
     canceled_at: 1384274085,
     quantity: 1,
     application_fee_percent: nil
-  } if subscription
+  } if subscription or subscription_status or plan
   
   
   cards_data = {
@@ -118,7 +114,7 @@ def stripe_customer_object(customer="cus_00000000000000", plan="some plan_000000
   }
   Stripe::Customer.construct_from(h)
 end
-def stripe_subscription_object(customer="cus_00000000000000", plan="some plan_00000000000000", status:"active")
+def stripe_subscription_object(customer:"cus_00000000000000", plan:"some plan_00000000000000", status:"active")
   h = {
     id: "su_2vh4Y9KY7hEfx5",
     plan: {
