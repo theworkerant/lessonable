@@ -27,8 +27,7 @@ test:
   pool: 5
   username: travis
   password:
-  encoding: "utf8"
-  socket: /tmp/mysql.sock
+  # socket: /tmp/mysql.sock
 
 production:
   adapter: mysql2
