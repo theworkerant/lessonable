@@ -34,7 +34,7 @@ def hit_stripe?
   ENV["HIT_STRIPE"] == "true"
 end
 
-def valid_card_attributes(number, exp_month, exp_year)
+def card_attributes(number, exp_month, exp_year)
   number ||= "4242424242424242"
   exp_month ||= "12"
   exp_year ||="2050"

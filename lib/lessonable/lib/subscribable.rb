@@ -63,7 +63,5 @@ module Lessonable
       receiver.extend ClassMethods
     end
     
-
-    
   end
 end

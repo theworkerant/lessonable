@@ -14,6 +14,8 @@ module Lessonable
       roles.each { |role| send(role) }
       
       ROLES.each{ |role| self.send :"#{role}_abilities" }
+      
+      add_custom_abilities(user)
     end
     
     # Methods to be overridden
@@ -31,6 +33,17 @@ module Lessonable
     end
     def default
       can :read, Business
+    end
+    
+    private
+    def add_custom_abilities(user)
+      user.permissions.each do |permission|
+        if permission.subject_id.nil?
+          can permission.action.to_sym, permission.subject_class.constantize
+        else
+          can permission.action.to_sym, permission.subject_class.constantize, :id => permission.subject_id
+        end
+      end
     end
   end
 end

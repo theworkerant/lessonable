@@ -16,7 +16,7 @@ module Lessonable
       end
       
       def create_model_file
-        template "user.rb", "app/models/user.rb" 
+        template "user.rb", "app/models/user.rb"
         migration_template "create_user.rb", "db/migrate/create_user.rb"
       end
       
@@ -31,6 +31,11 @@ module Lessonable
       def create_inheritable_roles
         template "role.rb", "app/models/role.rb"
         migration_template "create_roles.rb", "db/migrate/create_roles.rb"
+      end
+      
+      def create_permissions
+        template "permission.rb", "app/models/permission.rb"
+        migration_template "create_permissions.rb", "db/migrate/create_permissions.rb"
       end
       
     end  

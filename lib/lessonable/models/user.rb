@@ -9,6 +9,7 @@ module Lessonable
       delegate :can?, :cannot?, :to => :current_ability
       
       has_many :roles
+      has_many :permissions
       has_many :businesses, through: :roles, :source => :rolable, :source_type => "Business"
       
       belongs_to :business
