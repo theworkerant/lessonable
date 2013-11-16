@@ -8,6 +8,7 @@ module Lessonable
     def self.routes
       Rails.application.routes.draw do
         resources :businesses, only: [:show, :create, :update]
+        resources :cards, only: [:create]
       end
     end
   end

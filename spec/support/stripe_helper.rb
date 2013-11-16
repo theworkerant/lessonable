@@ -34,10 +34,16 @@ def hit_stripe?
   ENV["HIT_STRIPE"] == "true"
 end
 
+def valid_card_attributes(number, exp_month, exp_year)
+  number ||= "4242424242424242"
+  exp_month ||= "12"
+  exp_year ||="2050"
+  {number: number, exp_month: exp_month, exp_year: exp_year}
+end
 # For *raw*
 # replace nils with nils
 # replace (.*): with $1:
-def stripe_customer_object(customer:"cus_00000000000000", plan:"some plan_00000000000000", subscription:false, subscription_status:"active", card:false)
+def stripe_customer_object(customer: "cus_00000000000000", plan: "some plan_00000000000000", subscription: false, subscription_status: "active", card: false)
   subscription_data, cards_data, default_card_data = nil, nil, nil
   subscription_data = {
     id: "su_2vbKm2UYpLdDj2",
@@ -67,7 +73,7 @@ def stripe_customer_object(customer:"cus_00000000000000", plan:"some plan_000000
     application_fee_percent: nil
   } if subscription or subscription_status or plan
   
-  
+  cards_data = {object:"list",count:0,url:"/v1/customers/#{customer}/cards",data:[]}
   cards_data = {
     object:"list",
     count:1,
@@ -94,6 +100,7 @@ def stripe_customer_object(customer:"cus_00000000000000", plan:"some plan_000000
       address_zip_check:nil
     }]
   } if card
+  default_card_data = nil
   default_card_data = "card_2w11AX7TQuGRsc" if card
     
   h = {
@@ -114,7 +121,7 @@ def stripe_customer_object(customer:"cus_00000000000000", plan:"some plan_000000
   }
   Stripe::Customer.construct_from(h)
 end
-def stripe_subscription_object(customer:"cus_00000000000000", plan:"some plan_00000000000000", status:"active")
+def stripe_subscription_object(customer: "cus_00000000000000", plan: "some plan_00000000000000", status: "active")
   h = {
     id: "su_2vh4Y9KY7hEfx5",
     plan: {
@@ -292,4 +299,28 @@ def stripe_invoice_payment_succeeded(customer="cus_00000000000000", plan="some p
   }
 
   Stripe::Event.construct_from(h)
+end
+def stripe_card_added_response(card: "4242424242424242", customer: "cus_00000000000000")
+  h = {
+    id: "card_2vh3mZjtmBCneT",
+    object: "card",
+    last4: card[-4..-1],
+    type: "Visa",
+    exp_month: 1,
+    exp_year: 2050,
+    fingerprint: "qhjxpr7DiCdFYTlH",
+    customer: "cus_2vbKknLMmEvYam",
+    country: "US",
+    name: nil,
+    address_line1: nil,
+    address_line2: nil,
+    address_city: nil,
+    address_state: nil,
+    address_zip: nil,
+    address_country: nil,
+    cvc_check: "pass",
+    address_line1_check: nil,
+    address_zip_check: nil
+  }
+  Stripe::Card.construct_from(h)
 end

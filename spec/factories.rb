@@ -19,6 +19,7 @@ FactoryGirl.define do
   factory :user do
     first_name "Test"
     sequence(:last_name) {|n| "User #{n}"}
+    customer_id {hit_stripe? ? nil : "cus_00000000000000"}
     # role
   end
 end

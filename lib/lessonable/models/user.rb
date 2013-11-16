@@ -16,6 +16,7 @@ module Lessonable
       
       before_create :set_default_role
       after_create :create_subscription
+      after_create :setup_stripe
     end
     
     def full_name
@@ -45,6 +46,9 @@ module Lessonable
       result = self.roles.find_by(rolable_id: object.id, rolable_type: object.class.to_s)
       result ? result.role : "default"
     end 
+    def stripe_customer
+      Stripe::Customer.retrieve(self.customer_id)
+    end
     
     private
     def set_default_role
@@ -53,6 +57,9 @@ module Lessonable
     def create_subscription
       self.subscription = self.build_subscription
       self.save
+    end
+    def setup_stripe
+      self.update_attribute :customer_id, Stripe::Customer.create(:description => "User ##{id} -- #{full_name}").id unless self.customer_id
     end
 
   end
