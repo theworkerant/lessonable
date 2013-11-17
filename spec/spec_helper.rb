@@ -1,4 +1,12 @@
-# This file is copied to spec/ when you run "rails generate rspec:install"
+require "coveralls"
+require "simplecov"
+Coveralls.wear!
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start "rails"
+
 ENV["RAILS_ENV"] ||= "test"
 ENV["HIT_STRIPE"] ||= "false"
 
@@ -10,8 +18,9 @@ require "factory_girl"
 require "database_cleaner"
 require "json_spec"
 
-require "coveralls"
-Coveralls.wear!
+require "reek"
+require "reek/spec"
+include Reek::Spec
 
 require "capybara-webkit"
 require "capybara/rspec"

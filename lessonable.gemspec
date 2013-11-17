@@ -31,7 +31,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency "capybara-webkit"
   s.add_development_dependency "timecop"
   s.add_development_dependency "json_spec"
+  
+  # Code analysis
   s.add_development_dependency "coveralls"
+  s.add_development_dependency "reek"
   
   s.add_development_dependency "slim"
   
