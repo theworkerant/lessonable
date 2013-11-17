@@ -131,7 +131,7 @@ describe Lessonable::Subscribable do
       it "defaults role and removes subscription_id" do
         subject.unsubscribe(at_period_end: false)
         expect(subject.role).to eq "default"
-        expect(subject.subscription_id).to eq nil
+        expect(subject.subscription.plan_id).to eq nil
       end
     end
   end

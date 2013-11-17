@@ -6,13 +6,18 @@ class SubscriptionsController < LessonableController
     current_user.subscribe_to(plan)
     render json: {id: current_user.subscription.id}, status: 200
   end
+  def destroy
+    at_period_end = !(subscription_params[:at_period_end] == "false")
+    current_user.unsubscribe(at_period_end: at_period_end)
+    render json: "", status: 200
+  end
   
   private
   def plan_unlisted?(plan)
     !Lessonable::Subscribable::ROLE_PLANS.values.flatten.include? plan
   end
   def subscription_params
-    params.require(:subscription).permit(:plan)
+    params.require(:subscription).permit(:plan, :at_period_end)
   end
 
   rescue_from Stripe::InvalidRequestError, with: :stripe_error

@@ -4,3 +4,6 @@ end
 def returns_code(code)
   expect(response.status).to eq code
 end
+def json_response
+  parse_json(response.body)
+end

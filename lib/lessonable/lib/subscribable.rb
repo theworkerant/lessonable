@@ -12,8 +12,8 @@ module Lessonable
       customer = Stripe::Customer.retrieve(self.customer_id)
       response = customer.cancel_subscription(at_period_end: at_period_end)
       unless at_period_end
-        self.subscription_id  = nil
-        self.role             = "default"
+        self.subscription.update_attribute :plan_id, nil
+        self.role = "default"
         self.save
       end
     end

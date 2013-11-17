@@ -9,7 +9,7 @@ module Lessonable
       Rails.application.routes.draw do
         resources :businesses, only: [:show, :create, :update]
         resources :cards, only: [:create]
-        resources :subscriptions, only: [:update]
+        resources :subscriptions, only: [:update, :destroy]
       end
     end
   end
