@@ -60,7 +60,7 @@ module Lessonable
       self.save
     end
     def setup_stripe
-      self.update_attribute :customer_id, Stripe::Customer.create(:description => "User ##{id} -- #{full_name}").id unless self.customer_id
+      self.update_attribute :customer_id, Stripe::Customer.create(description: "##{id} #{full_name}", email: email).id unless self.customer_id
     end
 
   end

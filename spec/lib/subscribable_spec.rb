@@ -99,6 +99,9 @@ describe Lessonable::Subscribable do
     end
     
     context "while trialing" do
+      it "does something" do
+        pending
+      end
     end
     
     context "canceled automatically" do
