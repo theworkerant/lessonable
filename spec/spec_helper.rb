@@ -18,10 +18,6 @@ require "factory_girl"
 require "database_cleaner"
 require "json_spec"
 
-require "reek"
-require "reek/spec"
-include Reek::Spec
-
 require "capybara-webkit"
 require "capybara/rspec"
 Capybara.javascript_driver  = :webkit
