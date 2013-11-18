@@ -19,6 +19,10 @@ FactoryGirl.define do
   factory :user do
     first_name "Test"
     sequence(:last_name) {|n| "User #{n}"}
+    sequence(:email) {|n| "someuser#{n}@test.com"}
+    password "password"
+    password_confirmation "password"
+    
     customer_id {hit_stripe? ? nil : "cus_00000000000000"}
     # role
   end

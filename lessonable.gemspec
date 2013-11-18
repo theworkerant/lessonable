@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency "cancan"
   s.add_dependency "cancan_strong_parameters"
   s.add_dependency "stripe"
+  s.add_dependency "devise"
 
   s.add_development_dependency "mysql2"
   

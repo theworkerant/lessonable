@@ -17,7 +17,7 @@ module Lessonable
       
       def create_model_file
         template "user.rb", "app/models/user.rb"
-        migration_template "create_user.rb", "db/migrate/create_user.rb"
+        migration_template "devise_create_users.rb", "db/migrate/devise_create_users.rb"
       end
       
       def create_business_association
