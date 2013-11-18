@@ -15,9 +15,13 @@ module Lessonable
         Time.now.utc.strftime("%Y%m%d%H%M%S%L").to_i.to_s
       end
       
-      def create_model_file
+      def install_devise
+        invoke "devise:install"
+      end
+      
+      def create_model
         template "user.rb", "app/models/user.rb"
-        migration_template "devise_create_users.rb", "db/migrate/devise_create_users.rb"
+        invoke "devise:model User"
       end
       
       def create_business_association

@@ -1,9 +1,10 @@
 class LessonableController < ActionController::Base
   require 'cancan_strong_parameters'
+  # include Lessonable::TokenAuthController
   
   respond_to :json
   before_filter :set_format
-
+  
   def current_ability
     current_user.current_ability
   end
@@ -22,4 +23,5 @@ class LessonableController < ActionController::Base
   def set_format
     request.format = "json"
   end
+  
 end

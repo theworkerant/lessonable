@@ -6,7 +6,9 @@ module Lessonable
     #
     #   Lessonable::Engine.routes
     def self.routes
-      Rails.application.routes.draw do        
+      Rails.application.routes.draw do
+        ActiveAdmin.routes(self)
+        devise_for :users
         resources :businesses, only: [:show, :create, :update]
         resources :cards, only: [:create]
         resources :subscriptions, only: [:update, :destroy]

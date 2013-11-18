@@ -12,8 +12,8 @@ module Lessonable
           
       def create_model_file
         invoke "lessonable:business"
-        invoke "devise:install"
         invoke "lessonable:user"
+        invoke "lessonable:admin"
         invoke "lessonable:subscriptions"
       end
       

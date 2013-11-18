@@ -1,6 +1,7 @@
 module Lessonable
   module User
     extend ActiveSupport::Concern
+    # include Lessonable::TokenAuthUser
     include Lessonable::Subscribable
     
     included do
