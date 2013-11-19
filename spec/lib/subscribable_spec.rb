@@ -32,7 +32,7 @@ describe Lessonable::Subscribable do
   end
   
   context "no existing subscription" do
-
+    
     it "changes role on successful subscription" do
       allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object(plan: "The biz plan")) unless hit_stripe?
       subject.subscribe_to("The biz plan")

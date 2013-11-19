@@ -34,9 +34,9 @@ module Lessonable
       self.subscription.update_attributes({
         plan_id: stripe_subscription.plan.id,
         status: stripe_subscription.status,
-        current_period_start: stripe_subscription.current_period_start,
-        current_period_end: stripe_subscription.current_period_start,
-        canceled_at: stripe_subscription.canceled_at
+        current_period_start: stripe_subscription.current_period_start ? Time.at(stripe_subscription.current_period_start) : nil,
+        current_period_end: stripe_subscription.current_period_end ? Time.at(stripe_subscription.current_period_end) : nil,
+        canceled_at: stripe_subscription.canceled_at ? Time.at(stripe_subscription.canceled_at) : nil
       })
     end
 
