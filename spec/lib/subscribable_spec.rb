@@ -17,18 +17,6 @@ describe Lessonable::Subscribable do
     subject.respond_to?(:role)
   end
 
-  # describe "#subscribable?(plan)" do
-  #   it "responds true if there is a role for a given plan" do
-  #     expect(subject.subscribable?("The biz plan")).to eq true
-  #     expect(subject.subscribable?("Some unknown plan")).to eq false
-  #   end
-  # end
-  
-  describe "#update_subscription(stripe_subscription)" do
-    it "updates subscription attributes from stripe object" do
-      pending
-    end
-  end
   describe "#plan_for_role?(plan,role)" do
     it "returns whether a plan exists for a given role" do
       expect(subject.plan_for_role?("No such plan", "business")).to eq false
@@ -78,6 +66,15 @@ describe Lessonable::Subscribable do
       expect(lambda{subject.subscribe_to("student awesomeness")}).to raise_error(Stripe::InvalidRequestError, "You must supply a valid card")
     end if hit_stripe?
     
+    context "chooses trial plan" do
+      it "plan is set and status is 'trialing'" do
+        allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object(plan: "student with trial", status:"trialing")) unless hit_stripe?
+        subject.subscribe_to("student with trial")
+        expect(subject.subscription.reload().plan_id).to eq "student with trial"
+        expect(subject.subscription.status).to eq "trialing"
+      end
+    end
+    
   end
   
   context "existing subscription" do
@@ -98,11 +95,17 @@ describe Lessonable::Subscribable do
       expect(subject.reload().role).to eq "business"
     end
     
-    context "while trialing" do
-      it "does something" do
-        pending
+    context "is a trial subscription" do
+      before(:each) do
+        stripe_customer_without_card(subject)
       end
-    end
+      it "fails to upgrade without card going to non-trial plan" do
+        allow_any_instance_of(Stripe::Customer).to receive(:update_subscription).and_return(stripe_subscription_object(plan: "student with trial")) unless hit_stripe?
+        subject.subscribe_to("student with trial")
+        expect(subject.reload.role).to eq "student"
+        expect(lambda{subject.reload.subscribe_to("The biz plan")}).to raise_error(Stripe::InvalidRequestError, "You must supply a valid card")
+      end
+    end if hit_stripe?
     
     context "canceled automatically" do
       before(:each) do

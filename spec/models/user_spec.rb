@@ -56,7 +56,7 @@ describe Lessonable::User do
   describe "#businesses" do
     
     before(:each) do
-      3.times { create :business } 
+      3.times { create :business }
       subject.roles.create({role: "owner", rolable_id: 2, rolable_type: "Business"})
       subject.roles.create({role: "office", rolable_id: 2, rolable_type: "Business"})
     end

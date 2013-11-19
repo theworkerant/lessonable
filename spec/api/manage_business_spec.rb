@@ -74,8 +74,8 @@ feature "update a business" do
       returns_code 200
     end
     scenario "blank required attribtue" do
-      business = create :business
       patch business_path(business, {business: {name: ""}})
+      expect(business.reload.name).to eq "Test Business"
       returns_code 422
     end
     
