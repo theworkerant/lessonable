@@ -1,17 +1,16 @@
 module Lessonable
-  class Ability
+  class LessonAbility
     extend ActiveSupport::Concern
     
     require "cancan"
     include CanCan::Ability
     include Lessonable::CustomAbility
     
-    ROLES = %w( admin business instructor student default )
-    SUBSCRIBABLE_ROLES = ROLES - ["admin"]
+    ROLES = %w( owner instructor helper attendee default )
     
-    def initialize(user)
-      user.role ||= "default"
-      roles = ROLES[ROLES.index(user.role)..-1]
+    def initialize(user, lesson)
+      @lesson = lesson
+      roles = ROLES[ROLES.index(user.role_for(@lesson))..-1]
       roles.each { |role| send(role) }
       
       ROLES.each{ |role| self.send :"#{role}_abilities" }
@@ -22,21 +21,18 @@ module Lessonable
     # Methods to be overridden
     ROLES.each {|role| define_method("#{role}_abilities") {} }
     
-    def admin
-      can :manage, :all
-    end
-    def business
-      can :manage, Business
-    end
-    def instructor
+    def owner
       can :manage, Lesson
     end
-    def student
+    def instructor
+    end
+    def helper
+    end
+    def attendee
+      can :read, @lesson
     end
     def default
-      can :read, Business
       can :read, Lesson, private: false
     end
-      
   end
 end

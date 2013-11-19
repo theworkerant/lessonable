@@ -10,6 +10,7 @@ module Lessonable
         ActiveAdmin.routes(self)
         devise_for :users
         resources :businesses, only: [:show, :create, :update]
+        resources :lessons, only: [:show, :create, :update]
         resources :cards, only: [:create]
         resources :subscriptions, only: [:update, :destroy]
       end

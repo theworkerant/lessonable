@@ -12,6 +12,7 @@ module Lessonable
       has_many :roles
       has_many :permissions
       has_many :businesses, through: :roles, :source => :rolable, :source_type => "Business"
+      has_many :lessons, through: :roles, :source => :rolable, :source_type => "Lesson"
       
       belongs_to :business
       belongs_to :subscription

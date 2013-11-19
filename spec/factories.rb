@@ -27,3 +27,14 @@ FactoryGirl.define do
     # role
   end
 end
+
+FactoryGirl.define do
+  factory :lesson do
+    name "Test Lesson"
+    description "Lorem ipsum dolor sit amet"
+    private false
+    template false
+    max_occupancy 5
+    duration 60
+  end
+end
