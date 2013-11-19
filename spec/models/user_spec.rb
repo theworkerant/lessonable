@@ -1,32 +1,44 @@
 require "spec_helper"
 describe Lessonable::User do
-  context "a new user" do
-    subject { create :user }
+  subject { create :user }
   
-    it "has a first, last and full name" do
-      expect(subject.respond_to?(:first_name)).to eq true
-      expect(subject.respond_to?(:last_name)).to eq true
-      expect(subject.respond_to?(:full_name)).to eq true
-    end
-    it "has a default role of 'default'" do
-      expect(subject.respond_to?(:role)).to eq true
-      expect(subject.role).to eq "default"
-    end
-    it "responds to abilities methods #can? and #cannot?" do
-      expect(subject.respond_to?(:can?)).to eq true
-      expect(subject.respond_to?(:cannot?)).to eq true
-    end
-    
-    describe "#is?" do
-      it "checks whether user has that role" do
-        expect(subject.is?("instructor")).to eq false
-        expect(subject.is?("default")).to eq true
-      end
-    end
+  it "has a first, last" do
+    expect(subject.respond_to?(:first_name)).to eq true
+    expect(subject.respond_to?(:last_name)).to eq true
+  end
+  it "has a full name of first+last" do
+    subject.first_name = "Maharg"
+    subject.last_name = "Salgoud Eirwop"
+    expect(subject.full_name).to eq "Maharg Salgoud Eirwop"
+  end
+  it "has a default role of 'default'" do
+    expect(subject.respond_to?(:role)).to eq true
+    expect(subject.role).to eq "default"
+  end
+  it "responds to abilities methods #can? and #cannot?" do
+    expect(subject.respond_to?(:can?)).to eq true
+    expect(subject.respond_to?(:cannot?)).to eq true
+  end
+  it "has a customer_id" do
+    expect(subject.customer_id).to be_a String
+    expect(subject.customer_id).to be_present
   end
   
+  describe "#is?" do
+    it "checks whether user has that role" do
+      expect(subject.is?("instructor")).to eq false
+      expect(subject.is?("default")).to eq true
+    end
+  end
+  describe "#stripe_customer" do
+    it "returns a Stripe::Customer object" do
+      allow(Stripe::Customer).to receive(:retrieve).with(subject.customer_id).and_return(stripe_customer_object) unless hit_stripe?
+      expect(subject.stripe_customer).to be_a Stripe::Customer
+      expect(subject.stripe_customer.id).to eq subject.customer_id
+    end
+  end  
+  
   describe "#business" do
-    subject { create :user }
     before(:each) do
       other_business = create :business
       subject.roles.create({role: "owner", rolable_id: other_business.id, rolable_type: other_business.class.to_s})
@@ -42,7 +54,6 @@ describe Lessonable::User do
   end
   
   describe "#businesses" do
-    subject { create :user }
     
     before(:each) do
       3.times { create :business } 
@@ -69,8 +80,7 @@ describe Lessonable::User do
   end
   
   describe "Object Roles" do
-    subject { create :user }
-    
+
     it "has roles for objects" do
       expect(subject.roles.length).to eq 0
       subject.roles.new({role: "some_role", rolable_id: 1, rolable_type: "Class"})
@@ -88,6 +98,12 @@ describe Lessonable::User do
           expect(subject.can?(:manage, business)).to eq false
           subject.ability = business
           expect(subject.can?(:manage, business)).to eq true
+        end
+        it "resets the ability when no object" do
+          subject.ability = business
+          expect(subject.can?(:manage, business)).to eq true
+          subject.ability = false
+          expect(subject.can?(:manage, business)).to eq false
         end
       end
 
@@ -107,5 +123,29 @@ describe Lessonable::User do
       end
     end
   end
-
+  describe "Custom Permissions" do
+    it "can give users special permissions on any object" do
+      expect(subject.can?(:go_public, Business)).to eq false
+      subject.permissions.create({subject_class: "Business", action: "go_public"})
+      subject.current_ability = nil
+      expect(subject.can?(:go_public, Business)).to eq true
+    end
+    let(:business) { create :business }
+    let(:other_business) { create :business }
+    it "can give users special permissions on a particular object" do
+      expect(subject.can?(:go_public, business)).to eq false
+      subject.permissions.create({subject_class: "Business", action: "go_public", subject_id: business.id})
+      subject.current_ability = nil
+      expect(subject.can?(:go_public, business)).to eq true
+      expect(subject.can?(:go_public, other_business)).to eq false
+    end
+    it "custom permissions apply to other Ability classes" do
+      expect(subject.can?(:go_public, business)).to eq false
+      subject.permissions.create({subject_class: "Business", action: "go_public", subject_id: business.id})
+      subject.ability = business
+      expect(subject.can?(:go_public, business)).to eq true
+      expect(subject.can?(:go_public, other_business)).to eq false
+    end
+  end
+  
 end

@@ -32,6 +32,9 @@ module Lessonable
         @current_ability = "Lessonable::#{object.class.to_s}Ability".constantize.new(self, object)
       end
     end
+    def current_ability=(ability)
+      @current_ability = ability
+    end
     def current_ability
       @current_ability ||= Lessonable::Ability.new(self)
     end

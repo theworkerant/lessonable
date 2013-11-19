@@ -4,6 +4,7 @@ module Lessonable
     
     require "cancan"
     include CanCan::Ability
+    include Lessonable::CustomAbility
     
     ROLES = %w( admin business instructor student default )
     SUBSCRIBABLE_ROLES = ROLES - ["admin"]
@@ -34,17 +35,6 @@ module Lessonable
     def default
       can :read, Business
     end
-    
-    private
-      def add_custom_abilities(user)
-        user.permissions.each do |permission|
-          if permission.subject_id.nil?
-            can permission.action.to_sym, permission.subject_class.constantize
-          else
-            can permission.action.to_sym, permission.subject_class.constantize, :id => permission.subject_id
-          end
-        end
-      end
       
   end
 end

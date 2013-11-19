@@ -4,6 +4,7 @@ module Lessonable
     
     require "cancan"
     include CanCan::Ability
+    include Lessonable::CustomAbility
     
     ROLES = %w( owner instructor office customer default )
     
@@ -13,6 +14,8 @@ module Lessonable
       roles.each { |role| send(role) }
       
       ROLES.each{ |role| self.send :"#{role}_abilities" }
+      
+      add_custom_abilities(user)
     end
     
     # Methods to be overridden
