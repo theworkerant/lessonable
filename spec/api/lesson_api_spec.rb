@@ -14,28 +14,28 @@ feature "find a lesson" do
     expect_json_is_empty(response.body)
     returns_code 404
   end
-  context "that's private" do
-    scenario "see it's glory private-like" do
-      lesson = create :lesson, private: true
-      user.roles.create({role: "attendee", rolable_id: lesson.id, rolable_type: lesson.class.to_s})
-      get lesson_path(lesson)
-      expect(response.body).to be_json_eql lesson.to_json
-      returns_code 200
-    end
-    scenario "isn't found even with 'default' role" do
-      lesson = create :lesson, private: true
-      user.roles.create({role: "default", rolable_id: lesson.id, rolable_type: lesson.class.to_s})
-      get lesson_path(lesson)
-      pending
-      # expect_not_authorized
-    end
-    scenario "isn't found" do
-      lesson = create :lesson, private: true
-      get lesson_path(lesson)
-      expect_json_is_empty(response.body)
-      returns_code 404
-    end
-  end
+  # context "that's private" do
+  #   scenario "see it's glory private-like" do
+  #     lesson = create :lesson, private: true
+  #     user.roles.create({role: "attendee", rolable_id: lesson.id, rolable_type: lesson.class.to_s})
+  #     get lesson_path(lesson)
+  #     expect(response.body).to be_json_eql lesson.to_json
+  #     returns_code 200
+  #   end
+  #   scenario "isn't found even with 'default' role" do
+  #     lesson = create :lesson, private: true
+  #     user.roles.create({role: "default", rolable_id: lesson.id, rolable_type: lesson.class.to_s})
+  #     get lesson_path(lesson)
+  #     pending
+  #     # expect_not_authorized
+  #   end
+  #   scenario "isn't found" do
+  #     lesson = create :lesson, private: true
+  #     get lesson_path(lesson)
+  #     expect_json_is_empty(response.body)
+  #     returns_code 404
+  #   end
+  # end
 end
 
 feature "lesson creation" do
@@ -89,12 +89,12 @@ feature "update a lesson" do
       user.roles.create({role: "owner", rolable_id: lesson.id, rolable_type: lesson.class.to_s})
     end
 
-    scenario "successfully updated private lesson" do
-      lesson.update_attribute :private, true
-      patch lesson_path(lesson, {lesson: {name: "Some Private Lesson Edited!", description: "Some description"}})
-      expect(json_response["id"]).to eq 1
-      returns_code 200
-    end
+    # scenario "successfully updated private lesson" do
+    #   lesson.update_attribute :private, true
+    #   patch lesson_path(lesson, {lesson: {name: "Some Private Lesson Edited!", description: "Some description"}})
+    #   expect(json_response["id"]).to eq 1
+    #   returns_code 200
+    # end
     scenario "successfully updated" do
       patch lesson_path(lesson, {lesson: {name: "Some Lesson Edited!", description: "Some description"}})
       expect(json_response["id"]).to eq 1

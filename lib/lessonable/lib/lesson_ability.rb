@@ -32,7 +32,7 @@ module Lessonable
       can :read, @lesson
     end
     def default
-      can :read, Lesson, private: false
+      # can :read, Lesson, private: false
     end
   end
 end

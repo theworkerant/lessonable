@@ -3,7 +3,7 @@ class CreateLessons < ActiveRecord::Migration
     create_table :lessons do |t|
       t.string :name
       t.text :description
-      t.boolean :private
+      # t.boolean :private
       t.boolean :template
       
       t.integer :duration
