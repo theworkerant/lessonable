@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131119203844879) do
+ActiveRecord::Schema.define(version: 20131120153218487) do
 
   create_table "active_admin_comments", force: true do |t|
     t.string   "namespace"
@@ -60,6 +60,24 @@ ActiveRecord::Schema.define(version: 20131119203844879) do
     t.string   "role"
     t.integer  "rolable_id"
     t.string   "rolable_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "schedulables", force: true do |t|
+    t.integer  "schedule_id"
+    t.integer  "order"
+    t.integer  "schedulable_id"
+    t.string   "schedulable_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "schedules", force: true do |t|
+    t.integer  "count"
+    t.datetime "start_date"
+    t.text     "rules"
+    t.boolean  "private"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

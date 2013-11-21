@@ -16,6 +16,7 @@ module Lessonable
         invoke "lessonable:admin"
         invoke "lessonable:subscriptions"
         invoke "lessonable:lessons"
+        invoke "lessonable:schedules"
       end
       
     end  

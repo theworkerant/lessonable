@@ -14,4 +14,5 @@ module Lessonable
   require "lessonable/models/user"
   require "lessonable/models/subscription"
   require "lessonable/models/lesson"
+  require "lessonable/models/schedule"
 end

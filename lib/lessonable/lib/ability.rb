@@ -35,7 +35,7 @@ module Lessonable
     end
     def default
       can :read, Business
-      # can :read, Lesson, private: false
+      can :read, Lesson
     end
       
   end

@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "cancan_strong_parameters"
   s.add_dependency "stripe"
   s.add_dependency "devise"
+  s.add_dependency "ice_cube"
   # s.add_dependency "activeadmin" # in Gemfile due to github requirement
 
   s.add_development_dependency "mysql2"
